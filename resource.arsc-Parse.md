@@ -24,4 +24,27 @@ drwxr-xr-x 44 erlin erlin   4096 3月  21 12:06 res/
 drwxr-xr-x  5 erlin erlin   4096 3月  21 12:06 smali/
 ```
 
+![image](img/Resource.arsc-format.png)
+
 注：resources.arsc 文件格式的数据结构定义：android-4.1.1_r1/frameworks/base/include/androidfw/ResourceTypes.h
+
+根据ResourceTypes.h文件结构，转换成的Java文件结构如下：
+```Java
+./src/com/erlin/parse/androidArsc/type
+├── ./src/com/erlin/parse/androidArsc/type/ResChunkHeader.java
+├── ./src/com/erlin/parse/androidArsc/type/ResourceType.java
+├── ./src/com/erlin/parse/androidArsc/type/ResStringPoolHeader.java
+├── ./src/com/erlin/parse/androidArsc/type/ResStringPoolRef.java
+├── ./src/com/erlin/parse/androidArsc/type/ResStringPoolSpan.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableConfig.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableEntry.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableHeader.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableMapEntry.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableMap.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTablePackage.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableRef.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableType.java
+├── ./src/com/erlin/parse/androidArsc/type/ResTableTypeSpec.java
+└── ./src/com/erlin/parse/androidArsc/type/ResValue.java
+```
+
