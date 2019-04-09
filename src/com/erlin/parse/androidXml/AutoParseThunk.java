@@ -23,8 +23,7 @@ public class AutoParseThunk {
     private static ArrayList<AttributeData> attributeDataList = new ArrayList<>();
 
     public static void main(String[] args) {
-        //byte[] manifest = Utils.readAndroidManifestToByteArray("./files/AndroidManifest.xml");
-        byte[] manifest = Utils.readAndroidManifestToByteArray("./files/abc_alert_dialog_material.xml");
+        byte[] manifest = Utils.readAndroidManifestToByteArray("./files/AndroidManifest.xml");
 
         int fileSize = Utils.bytes2Int(Utils.copyBytes(manifest, 4, 4));
         while (offsets < fileSize) {
