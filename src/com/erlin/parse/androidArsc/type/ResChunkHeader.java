@@ -1,4 +1,4 @@
-package com.erlin.parse.androidArsc;
+package com.erlin.parse.androidArsc.type;
 
 /**
  * ResourceTypes.h -> struct ResChunk_header
