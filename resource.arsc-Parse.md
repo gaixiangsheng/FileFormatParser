@@ -138,3 +138,147 @@ public static void parseResourcTableTypeChunk(byte[] bytes){
 }
 ```
 ## 二、资源字符串池ResStringPool_header -> ResStringPoolHeader Chunk解析：
+
+```Java
+public class ResStringPoolHeader {
+    public static final int SORTED_FLAG = 1<<0;
+    public static final int UTF8_FLAG = 1<<8;
+
+    public ResChunkHeader resChunkHeader;
+    public int stringCount;//字符串总数
+    public int styleCount;//字符串样式总数
+    public int flags;//标志
+    public int stringsStart;//字符串内容相对于头部的偏移量
+    public int stylesStart;//字符串样式内容相对于头部的偏移量
+
+    //提取String，存放到mStringPool中
+    public ArrayList<String> mStringPool;
+    //提取Style，存放到mStylePool中
+    public ArrayList<String> mStylePool;
+
+    public int getOffsets(){
+        return resChunkHeader.getOffsets()+4+4+4+4+4;
+    }
+
+    @Override
+    public String toString() {
+        return "ResStringPoolHeader{" +
+                "resChunkHeader=" + resChunkHeader +
+                ", stringCount=" + stringCount +
+                ", styleCount=" + styleCount +
+                ", flags=" + flags +
+                ", stringsStart=" + stringsStart +
+                ", stylesStart=" + stylesStart +
+                '}';
+    }
+}
+```
+
+![image](img/res_string_pool_type.png)
+![image](img/res_string_pool_type_.png)
+1. resChunkHeader:Chunk的头部信息结构
+    * type: Resource Table Header Chunk 类型：0x0001
+    * headerSize:Resource  String Pool Header Chunk Size 的大小：0x001C
+    * size:Resource String Pool Chunk Size的大小，在此资源段内，代表整个String Pool池大小
+2. stringCount:字符串总数,固定4字节
+3. styleCount:字符串样式总数,固定4字节
+4. flags:标志,固定4字节
+5. stringsStart:字符串内容相对于头部的偏移量,固定4字节
+6. stylesStart:字符串样式内容相对于头部的偏移量,固定4字节
+
+### 字符串偏移数组
+字符串偏移数组是计算每个字符串的偏移位置，用于提取字符串。
+ResStringPoolHeader结构体中stringsStart就是字符串偏移数组的结束位置。
+
+每个字符串的偏移位置计算代码：
+```Java
+//提取每个字符串的偏移位置
+int[] stringIndexArray = new int[mResStringPoolHeader.stringCount];
+int stringOffsets = offsets + 20;
+for (int i = 0; i < mResStringPoolHeader.stringCount; i++) {
+    stringIndexArray[i] = Utils.bytes2Int(Utils.copyBytes(bytes, stringOffsets + i * 4, 4));
+}
+```
+
+### 样式串偏移数组
+样式串偏移数组是计算每个样式串的偏移位置，用于提取样式字符串。
+ResStringPoolHeader结构体中stylesStart就是字符串偏移数组的结束位置。
+
+每个样式字符串的偏移位置计算代码：
+```Java
+//提取每个样式串的偏移位置
+int[] styleIndexArray = new int[mResStringPoolHeader.styleCount];
+int styleOffsets = stringOffsets+mResStringPoolHeader.stringCount*4;
+for(int i=0;i<mResStringPoolHeader.styleCount;i++){
+    styleIndexArray[i] = Utils.bytes2Int(Utils.copyBytes(bytes,styleOffsets+i*4,4));
+}
+```
+
+### 提取字符串和样式串
+有字符串偏移数组和样式串偏移数组就可以用来提取字符串和样式串，提取代码如下：
+```Java
+public static int extractStringList(ArrayList<String> arrayList,byte[] bytes,int count,int position){
+    System.out.println("start position = "+position);
+    for(int i=0;i<count;i++){
+        byte[] styleLenByte = Utils.copyBytes(bytes,position,2);
+        int strLen = styleLenByte[1]&0x7F;
+        String stringContent = "";
+        if(strLen != 0){
+            try {
+                stringContent = new String(Utils.copyBytes(bytes,position+2,strLen),"utf-8");
+            } catch (UnsupportedEncodingException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        arrayList.add(stringContent);
+        position+=strLen+3;
+        System.out.println("index : "+i+" string = "+stringContent);
+    }
+    System.out.println("end position = "+position);
+    return position;
+}
+```
+
+ResStringPoolHeader Chunk段的解析代码如下：
+```Java
+public static void parseResourceStringPoolHeaderChunk(byte[] bytes) {
+    if (!Utils.checkBytes(bytes)) {
+        return;
+    }
+    mResStringPoolHeader = new ResStringPoolHeader();
+    mResStringPoolHeader.resChunkHeader = getResourceChunkHeader(bytes, ResourceType.RES_STRING_POOL_TYPE, offsets);
+    mResStringPoolHeader.stringCount = Utils.bytes2Int(Utils.copyBytes(bytes, offsets + 8, 4));
+    mResStringPoolHeader.styleCount = Utils.bytes2Int(Utils.copyBytes(bytes, offsets + 12, 4));
+    mResStringPoolHeader.flags = Utils.bytes2Int(Utils.copyBytes(bytes, offsets + 16, 4));
+    mResStringPoolHeader.stringsStart = Utils.bytes2Int(Utils.copyBytes(bytes, offsets + 20, 4));
+    mResStringPoolHeader.stylesStart = Utils.bytes2Int(Utils.copyBytes(bytes, offsets + 24, 4));
+
+    System.out.println("ResStringPoolHeader:" + mResStringPoolHeader);
+    mResStringPoolHeader.mStringPool = new ArrayList<>(mResStringPoolHeader.stringCount);
+    mResStringPoolHeader.mStylePool = new ArrayList<>(mResStringPoolHeader.styleCount);
+
+    //提取每个字符串的偏移位置
+    int[] stringIndexArray = new int[mResStringPoolHeader.stringCount];
+    int stringOffsets = offsets + 20;
+    for (int i = 0; i < mResStringPoolHeader.stringCount; i++) {
+        stringIndexArray[i] = Utils.bytes2Int(Utils.copyBytes(bytes, stringOffsets + i * 4, 4));
+    }
+
+    //提取每个样式串的偏移位置
+    int[] styleIndexArray = new int[mResStringPoolHeader.styleCount];
+    int styleOffsets = stringOffsets+mResStringPoolHeader.stringCount*4;
+    for(int i=0;i<mResStringPoolHeader.styleCount;i++){
+            styleIndexArray[i] = Utils.bytes2Int(Utils.copyBytes(bytes,styleOffsets+i*4,4));
+    }
+
+    //提取字符串池
+    int stringContentIndex = styleOffsets+mResStringPoolHeader.styleCount*4;
+    stringContentIndex = extractStringList(mResStringPoolHeader.mStringPool,bytes,mResStringPoolHeader.stringCount,stringContentIndex);
+
+    //提取字符样式串
+    int styleContentIndex = stringContentIndex;
+    styleContentIndex = extractStringList(mResStringPoolHeader.mStylePool,bytes,mResStringPoolHeader.styleCount,styleContentIndex);
+    offsets = styleContentIndex;
+}
+```
+
