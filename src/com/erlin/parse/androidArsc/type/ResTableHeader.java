@@ -6,7 +6,11 @@ package com.erlin.parse.androidArsc.type;
 
 public class ResTableHeader {
     public ResChunkHeader resChunkHeader;
-    public int packageCount;
+    public int packageCount;//固定4字节
+
+    public int getOffsets(){
+        return resChunkHeader.getOffsets()+4;
+    }
 
     @Override
     public String toString() {

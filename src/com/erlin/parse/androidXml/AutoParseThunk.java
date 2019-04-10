@@ -1,5 +1,8 @@
 package com.erlin.parse.androidXml;
 
+import com.erlin.parse.androidXml.type.AttributeData;
+import com.erlin.parse.androidXml.type.AttributeType;
+import com.erlin.parse.androidXml.type.StringType;
 import com.erlin.parse.util.Utils;
 
 import java.util.ArrayList;
@@ -7,13 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AutoParseThunk {
-    public static final String STRING_CHUNK = "0x001c0001";
-    public static final String RESOURCE_CHUNK = "0x00080180";
-    public static final String START_NAMESPACE_CHUNK = "0x00100100";
-    public static final String END_NAMESPACE_CHUNK = "0x00100101";
-    public static final String START_TAG_CHUNK = "0x00100102";
-    public static final String END_TAG_CHUNK = "0x00100103";
-    public static final String TEXT_TCHUNK = "0x00100104";
+
 
     private static int offsets = 8;
     private static ArrayList<String> stringChunkContent = new ArrayList<>();
@@ -23,37 +20,37 @@ public class AutoParseThunk {
     private static ArrayList<AttributeData> attributeDataList = new ArrayList<>();
 
     public static void main(String[] args) {
-        byte[] manifest = Utils.readAndroidManifestToByteArray("./files/AndroidManifest.xml");
+        byte[] manifest = Utils.readFileToByteArray("./files/AndroidManifest.xml");
 
         int fileSize = Utils.bytes2Int(Utils.copyBytes(manifest, 4, 4));
         while (offsets < fileSize) {
-            String hexChunk = "0x" + Utils.bytes2HexString(Utils.copyBytes(manifest, offsets, 4));
+            int hexChunk =  Utils.bytes2Int(Utils.copyBytes(manifest, offsets, 4));
             switch (hexChunk) {
-                case STRING_CHUNK:
+                case StringType.STRING_CHUNK:
                     System.out.println("STRING_CHUNK");
                     parseStringChunk(manifest);
                     break;
-                case RESOURCE_CHUNK:
+                case StringType.RESOURCE_CHUNK:
                     System.out.println("RESOURCE_CHUNK");
                     parseResourceChunk(manifest);
                     break;
-                case START_NAMESPACE_CHUNK:
+                case StringType.START_NAMESPACE_CHUNK:
                     System.out.println("START_NAMESPACE_CHUNK");
                     parseStartNamespaceChunk(manifest, true);
                     break;
-                case END_NAMESPACE_CHUNK:
+                case StringType.END_NAMESPACE_CHUNK:
                     System.out.println("END_NAMESPACE_CHUNK");
                     parseEndNamespaceChunk(manifest);
                     break;
-                case START_TAG_CHUNK:
+                case StringType.START_TAG_CHUNK:
                     System.out.println("START_TAG_CHUNK");
                     parseStartTagChunk(manifest);
                     break;
-                case END_TAG_CHUNK:
+                case StringType.END_TAG_CHUNK:
                     System.out.println("END_TAG_CHUNK");
                     parseEndTagChunk(manifest);
                     break;
-                case TEXT_TCHUNK:
+                case StringType.TEXT_TCHUNK:
                     System.out.println("TEXT_TCHUNK");
                     parseTextChunk(manifest);
                     break;

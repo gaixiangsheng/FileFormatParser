@@ -14,6 +14,9 @@ public class ResStringPoolHeader {
     public int stringsStart;
     public int stylesStart;
 
+    public int getOffsets(){
+        return resChunkHeader.getOffsets()+4+4+4+4+4;
+    }
 
     @Override
     public String toString() {

@@ -4,28 +4,28 @@ package com.erlin.parse.util;
 import java.io.*;
 
 public class Utils {
-    public static byte[] readAndroidManifestToByteArray(String androidManifestPath) {
-        if (androidManifestPath == null || androidManifestPath.length() == 0) {
+    public static byte[] readFileToByteArray(String filePath) {
+        if (filePath == null || filePath.length() == 0) {
             return null;
         }
 
-        File mManifestFile = new File(androidManifestPath);
-        if (!mManifestFile.exists() || !mManifestFile.isFile()) {
+        File mFile = new File(filePath);
+        if (!mFile.exists() || !mFile.isFile()) {
             return null;
         }
 
-        byte[] mAndroidManifestByte = null;
+        byte[] mFileBytes = null;
         FileInputStream inputStream = null;
         ByteArrayOutputStream outputStream = null;
         try {
-            inputStream = new FileInputStream(mManifestFile);
+            inputStream = new FileInputStream(mFile);
             outputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int len = 0;
             while ((len = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, len);
             }
-            mAndroidManifestByte = outputStream.toByteArray();
+            mFileBytes = outputStream.toByteArray();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -47,15 +47,15 @@ public class Utils {
             }
 
         }
-        return mAndroidManifestByte;
+        return mFileBytes;
     }
 
-    public static int bytes2Short(byte[] bytes) {
+    public static short bytes2Short(byte[] bytes) {
         if (!Utils.checkBytes(bytes)) {
-            return -1;
+            return (short)-1;
         }
 
-        return (bytes[0] & 0xff) | ((bytes[1] << 8) & 0xff00);
+        return (short) ((bytes[0] & 0xff) | ((bytes[1] << 8) & 0xff00));
     }
 
     public static int bytes2Int(byte[] bytes) {

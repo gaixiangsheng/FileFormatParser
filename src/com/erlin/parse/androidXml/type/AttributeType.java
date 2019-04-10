@@ -1,4 +1,6 @@
-package com.erlin.parse.androidXml;
+package com.erlin.parse.androidXml.type;
+
+import com.erlin.parse.androidXml.AutoParseThunk;
 
 public class AttributeType {
     public final static int ATTR_NULL = 0;

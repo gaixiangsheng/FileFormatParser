@@ -1,4 +1,4 @@
-package com.erlin.parse.androidXml;
+package com.erlin.parse.androidXml.type;
 
 public class AttributeData {
     public int nameSpaceUri = -1;
