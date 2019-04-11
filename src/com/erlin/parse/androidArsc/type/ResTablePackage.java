@@ -16,6 +16,9 @@ public class ResTablePackage {
     public int keyStrings;
     public int lastPublicKey;
 
+    public ResStringPoolHeader typeStringsPool;
+    public ResStringPoolHeader keyStringsPool;
+
     @Override
     public String toString() {
         return "ResTablePackage{" +
