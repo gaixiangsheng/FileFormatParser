@@ -8,7 +8,8 @@ import java.util.Arrays;
 
 public class ResTablePackage {
     public ResChunkHeader resChunkHeader;
-    public int id;
+    public String packageName;
+    public int packageId;
     public char[] name = new char[128];
     public int typeStrings;
     public int lastPublicType;
@@ -19,7 +20,8 @@ public class ResTablePackage {
     public String toString() {
         return "ResTablePackage{" +
                 "resChunkHeader=" + resChunkHeader +
-                ", id=" + id +
+                ", packageName='" + packageName + '\'' +
+                ", packageId=" + packageId +
                 ", name=" + Arrays.toString(name) +
                 ", typeStrings=" + typeStrings +
                 ", lastPublicType=" + lastPublicType +

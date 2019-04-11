@@ -17,7 +17,7 @@ public class ResTableType {
     public String toString() {
         return "ResTableType{" +
                 "resChunkHeader=" + resChunkHeader +
-                ", id=" + id +
+                ", packageId=" + id +
                 ", res0=" + res0 +
                 ", res1=" + res1 +
                 ", entryCount=" + entryCount +

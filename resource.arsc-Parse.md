@@ -177,7 +177,7 @@ public class ResStringPoolHeader {
 ![image](img/res_string_pool_type.png)
 ![image](img/res_string_pool_type_.png)
 1. resChunkHeader:Chunk的头部信息结构
-    * type: Resource Table Header Chunk 类型：0x0001
+    * type: Resource String Pool Header Chunk 类型：0x0001
     * headerSize:Resource  String Pool Header Chunk Size 的大小：0x001C
     * size:Resource String Pool Chunk Size的大小，在此资源段内，代表整个String Pool池大小
 2. stringCount:字符串总数,固定4字节
@@ -282,3 +282,62 @@ public static void parseResourceStringPoolHeaderChunk(byte[] bytes) {
 }
 ```
 
+## 三、RES_TABLE_PACKAGE_TYPE ResTablePackage Chunk解析：
+解析资源包信息的Chunk结构：
+```Java
+package com.erlin.parse.androidArsc.type;
+
+import java.util.Arrays;
+
+/**
+ * ResourceTypes.h -> struct ResTable_package
+ */
+
+public class ResTablePackage {
+    public ResChunkHeader resChunkHeader;
+    public String packageName;
+    public int packageId;
+    public char[] name = new char[128];
+    public int typeStrings;
+    public int lastPublicType;
+    public int keyStrings;
+    public int lastPublicKey;
+
+    @Override
+    public String toString() {
+        return "ResTablePackage{" +
+                        "resChunkHeader=" + resChunkHeader +
+                        ", packageName='" + packageName + '\'' +
+                        ", packageId=" + packageId +
+                        ", name=" + Arrays.toString(name) +
+                        ", typeStrings=" + typeStrings +
+                        ", lastPublicType=" + lastPublicType +
+                        ", keyStrings=" + keyStrings +
+                        ", lastPublicKey=" + lastPublicKey +
+                        '}';
+    }
+}
+```
+
+![image](img/res_table_package_type_01.png)
+
+![image](img/res_table_package_type_02.png)
+
+1. resChunkHeader:Chunk的头部信息结构
+    * type: Resource Table Package Header Chunk 类型：0x0200
+    * headerSize:Resource Table Package Header Chunk Size 的大小：0x0120
+    * size:Resource Table Package Chunk Size的大小，在此资源段内，代表整个TablePackage大小
+2. packageId:应用包ID，非系统应用资源包ID为0x7F，系统资源包ID为0x01
+3. packageName:应用包名
+4. typeStrings:资源类型字符串池相对于头部的偏移值
+5. lastPublicType:最后一个导出的Public类型字符串在类型字符串资源池中的索引，目前这个值设置为类型字符串资源池的元素个数。在解析的过程中没发现他的用途
+6. keyStrings:资源项名称字符串池相对于头部的偏移值
+7. lastPublicKey:最后一个导出的Public资源项名称字符串在资源项名称字符串资源池中的索引，目前这个值设置为资源项名称字符串资源池的元素个数。在解析的过程中没发现他的用途
+
+### 资源类型字符串池解析
+
+### 资源项名称字符串池解析
+
+RES_TABLE_PACKAGE_TYPE的Chunk段的解析代码：
+```Java
+```

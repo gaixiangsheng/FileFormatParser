@@ -1,9 +1,6 @@
 package com.erlin.parse.androidArsc;
 
-import com.erlin.parse.androidArsc.type.ResChunkHeader;
-import com.erlin.parse.androidArsc.type.ResStringPoolHeader;
-import com.erlin.parse.androidArsc.type.ResTableHeader;
-import com.erlin.parse.androidArsc.type.ResourceType;
+import com.erlin.parse.androidArsc.type.*;
 import com.erlin.parse.util.Utils;
 
 import java.io.UnsupportedEncodingException;
@@ -13,6 +10,7 @@ public class AutoParseThunk {
     private static int offsets = 0;
     public static ResTableHeader mResTableHeader = null;
     public static ResStringPoolHeader mResStringPoolHeader = null;
+    public static ResTablePackage mResTablePackage = null;
     public static int fileSize = 0;
 
     public static void main(String[] args) {
@@ -27,11 +25,33 @@ public class AutoParseThunk {
                     break;
                 case ResourceType.RES_STRING_POOL_TYPE:
                     parseResourceStringPoolHeaderChunk(resourceArscBytes);
-                    offsets += mResStringPoolHeader.getOffsets();
+                    offsets = mResTableHeader.getOffsets()+mResStringPoolHeader.resChunkHeader.size;
                     break;
+                case ResourceType.RES_TABLE_PACKAGE_TYPE:
+                    parseResourceTablePackageChunk(resourceArscBytes);
+                    return;
+                    //break;
             }
         }
 
+    }
+
+    public static void parseResourceTablePackageChunk(byte[] bytes){
+        if (!Utils.checkBytes(bytes)) {
+            return;
+        }
+
+        mResTablePackage = new ResTablePackage();
+        mResTablePackage.resChunkHeader = getResourceChunkHeader(bytes,ResourceType.RES_TABLE_PACKAGE_TYPE,offsets);
+        mResTablePackage.packageId = Utils.bytes2Int(Utils.copyBytes(bytes,offsets+8,4));
+        mResTablePackage.packageName = new String(Utils.copyBytes(bytes,offsets+12,128*2));
+        mResTablePackage.name = mResTablePackage.packageName.toCharArray();
+        mResTablePackage.typeStrings = Utils.bytes2Int(Utils.copyBytes(bytes,offsets+12+128*2,4));
+        mResTablePackage.lastPublicType = Utils.bytes2Int(Utils.copyBytes(bytes,offsets+16+128*2,4));
+        mResTablePackage.keyStrings = Utils.bytes2Int(Utils.copyBytes(bytes,offsets+20+128*2,4));
+        mResTablePackage.lastPublicKey = Utils.bytes2Int(Utils.copyBytes(bytes,offsets+24+128*2,4));
+
+        System.out.println("ResTablePackageChunk:"+mResTablePackage.toString());
     }
 
     public static void parseResourceStringPoolHeaderChunk(byte[] bytes) {
@@ -69,9 +89,7 @@ public class AutoParseThunk {
         stringContentIndex = extractStringList(mResStringPoolHeader.mStringPool,bytes,mResStringPoolHeader.stringCount,stringContentIndex);
 
         //提取字符样式串
-        int styleContentIndex = stringContentIndex;
-        styleContentIndex = extractStringList(mResStringPoolHeader.mStylePool,bytes,mResStringPoolHeader.styleCount,styleContentIndex);
-        offsets = styleContentIndex;
+        extractStringList(mResStringPoolHeader.mStylePool,bytes,mResStringPoolHeader.styleCount,stringContentIndex);
     }
 
     public static void parseResourcTableTypeChunk(byte[] bytes) {
@@ -93,7 +111,7 @@ public class AutoParseThunk {
     }
 
     public static int extractStringList(ArrayList<String> arrayList,byte[] bytes,int count,int position){
-        System.out.println("start position = "+position);
+        //System.out.println("start position = "+position);
         for(int i=0;i<count;i++){
             byte[] styleLenByte = Utils.copyBytes(bytes,position,2);
             int strLen = styleLenByte[1]&0x7F;
@@ -107,9 +125,9 @@ public class AutoParseThunk {
             }
             arrayList.add(stringContent);
             position+=strLen+3;
-            System.out.println("index : "+i+" string = "+stringContent);
+            //System.out.println("index : "+i+" string = "+stringContent);
         }
-        System.out.println("end position = "+position);
+        //System.out.println("end position = "+position);
         return position;
     }
 }

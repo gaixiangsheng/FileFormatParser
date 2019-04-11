@@ -15,7 +15,7 @@ public class ResTableTypeSpec {
     public String toString() {
         return "ResTableTypeSpec{" +
                 "resChunkHeader=" + resChunkHeader +
-                ", id=" + id +
+                ", packageId=" + id +
                 ", res0=" + res0 +
                 ", res1=" + res1 +
                 '}';
